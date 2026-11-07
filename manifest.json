@@ -1,0 +1,17 @@
+{
+  "name": "Śrīla Prabhupāda Audio Library",
+  "short_name": "Prabhupada Audio",
+  "description": "Listen to the complete audio books of His Divine Grace A.C. Bhaktivedanta Swami Prabhupada.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f1218",
+  "theme_color": "#ea580c",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

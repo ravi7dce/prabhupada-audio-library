@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
+  <title>Śrīla Prabhupāda Audio Library - Complete Audiobooks Collection</title>
+  <meta name="description" content="Listen and browse the complete transcendental audio books collection of His Divine Grace A.C. Bhaktivedanta Swami Prabhupada. Free, ad-free, and hosted on GitHub Pages.">
+  <meta name="theme-color" content="#ea580c">
+
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Śrīla Prabhupāda Audio Library">
+  <meta property="og:description" content="Complete audio books collection of His Divine Grace A.C. Bhaktivedanta Swami Prabhupada. Stream or download thousands of audio tracks freely.">
+  <meta property="og:image" content="assets/banner.png">
+
+  <!-- Favicon & PWA -->
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="header">
+    <div class="container header-inner">
+      <a href="#" class="brand">
+        <div class="brand-icon">🪷</div>
+        <div class="brand-info">
+          <span class="brand-title">Śrīla Prabhupāda</span>
+          <span class="brand-subtitle">Audio Library & Archive</span>
+        </div>
+      </a>
+
+      <!-- Desktop Search -->
+      <div class="header-search">
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search books, cantos, chapters, or topics... (Press '/' to search)" autocomplete="off">
+          <button id="searchClear" class="search-clear" title="Clear search">✕</button>
+          <span class="search-shortcut">/</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="header-actions">
+        <button id="themeToggle" class="btn-icon" title="Toggle Theme" aria-label="Toggle Dark / Light Theme">
+          <span class="icon">☀️</span>
+        </button>
+        <a href="https://github.com" target="_blank" rel="noopener" class="btn-icon" title="View Source on GitHub" aria-label="GitHub Repository">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Search Bar (Only shown on small screens) -->
+  <div class="mobile-search-bar" style="display: none;">
+    <div class="search-input-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" placeholder="Search audio books..." oninput="document.getElementById('searchInput').value = this.value; document.getElementById('searchInput').dispatchEvent(new Event('input'));">
+    </div>
+  </div>
+
+  <!-- Hero Banner -->
+  <section class="hero">
+    <div class="container hero-content">
+      <div class="hero-text">
+        <div class="hero-badge">
+          <span>✨</span>
+          <span>Transcendental Audio Archive</span>
+        </div>
+        <h1 class="hero-title">
+          His Divine Grace<br>
+          <span>A.C. Bhaktivedanta Swami Prabhupāda</span>
+        </div>
+        <p class="hero-quote">
+          "These books are not my creation; they are coming from the disciplic succession... If you simply read these books and hear the transcendental vibration, your life will become sublime."
+        </p>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-number" id="statTotalBooks">168</span>
+            <span class="stat-label">Audio Books</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" id="statTotalTracks">3,800+</span>
+            <span class="stat-label">Audio Tracks</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">100%</span>
+            <span class="stat-label">Free &amp; Ad-Free</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-illustration">
+        <div class="prabhupada-badge-card">
+          <div class="avatar-wrapper">
+            <span class="avatar-fallback">🕉️</span>
+          </div>
+          <h2 class="prabhupada-name">Founder-Ācārya</h2>
+          <p class="prabhupada-title">International Society for Krishna Consciousness</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sticky Categories & Controls -->
+  <nav class="controls-bar" aria-label="Book categories and filters">
+    <div class="container">
+      <div class="categories-scroll">
+        <button class="filter-btn active" data-category="all">
+          <span>📚 All Audio Books</span>
+        </button>
+        <button class="filter-btn" data-category="classics">
+          <span>👑 Major Classics</span>
+        </button>
+        <button class="filter-btn" data-category="gita">
+          <span>🕉️ Bhagavad-gītā</span>
+        </button>
+        <button class="filter-btn" data-category="bhagavatam">
+          <span>📜 Śrīmad-Bhāgavatam</span>
+        </button>
+        <button class="filter-btn" data-category="caitanya">
+          <span>🌸 Caitanya Literatures</span>
+        </button>
+        <button class="filter-btn" data-category="biography">
+          <span>📖 Biographies &amp; Lilamrita</span>
+        </button>
+        <button class="filter-btn" data-category="epics">
+          <span>🏹 Purāṇas &amp; Epics</span>
+        </button>
+        <button class="filter-btn" data-category="essays">
+          <span>💡 Philosophy &amp; Science</span>
+        </button>
+        <button class="filter-btn" data-category="songs">
+          <span>🪘 Songs &amp; Prayers</span>
+        </button>
+        <button class="filter-btn" data-category="goswami">
+          <span>🌺 Goswami Literature</span>
+        </button>
+        <button class="filter-btn" data-category="favorites">
+          <span>❤️ Favorites</span>
+        </button>
+      </div>
+
+      <!-- Secondary Controls -->
+      <div class="sub-controls">
+        <span id="gridCount">Loading audio library...</span>
+        <div class="sort-group">
+          <label for="sortSelect">Sort by:</label>
+          <select id="sortSelect" class="sort-select">
+            <option value="name-asc">Title (A to Z)</option>
+            <option value="name-desc">Title (Z to A)</option>
+            <option value="tracks-desc">Most Tracks First</option>
+            <option value="tracks-asc">Fewest Tracks First</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content Grid -->
+  <main class="main-content">
+    <div class="container">
+      <div id="booksGrid" class="books-grid">
+        <!-- Book Cards rendered dynamically via app.js -->
+        <div class="empty-state" style="grid-column: 1 / -1;">
+          <div class="empty-icon">⏳</div>
+          <h3 class="empty-title">Loading Library Catalog...</h3>
+          <p class="empty-text">Preparing Srila Prabhupada's audio books...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Book Detail Modal (Track List) -->
+  <div id="bookModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h2 id="modalTitle" class="modal-title">Book Title</h2>
+          <div id="modalSubtitle" class="modal-subtitle">Category • Tracks</div>
+        </div>
+        <button id="modalClose" class="modal-close" title="Close" aria-label="Close dialog">✕</button>
+      </div>
+      <div class="modal-search-wrapper">
+        <input type="text" id="modalSearch" class="modal-search-input" placeholder="Filter chapters or tracks in this book...">
+      </div>
+      <div id="modalBody" class="modal-body">
+        <!-- Tracks rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Persistent Bottom Audio Player -->
+  <aside id="playerBar" class="player-bar" style="display: none;" aria-label="Audio player">
+    <div class="player-inner">
+      <!-- Left: Track info -->
+      <div class="player-track-info">
+        <div id="playerArtwork" class="player-artwork">🪷</div>
+        <div class="player-text">
+          <div id="playerTitle" class="player-title">Track Title</div>
+          <div id="playerSubtitle" class="player-subtitle">Book Title</div>
+        </div>
+      </div>
+
+      <!-- Center: Controls + Scrubber -->
+      <div class="player-center">
+        <div class="player-controls">
+          <button id="btnShuffle" class="ctrl-btn" title="Shuffle">🔀</button>
+          <button id="btnPrev" class="ctrl-btn" title="Previous Track">⏮</button>
+          <button id="btnRewind" class="ctrl-btn" title="Rewind 15s" style="font-size: 0.85rem; font-weight: bold;">↺ 15s</button>
+          <button id="btnPlayPause" class="btn-play-pause" title="Play">▶</button>
+          <button id="btnForward" class="ctrl-btn" title="Forward 30s" style="font-size: 0.85rem; font-weight: bold;">30s ↻</button>
+          <button id="btnNext" class="ctrl-btn" title="Next Track">⏭</button>
+          <button id="btnRepeat" class="ctrl-btn" title="Repeat Mode">🔁</button>
+        </div>
+
+        <div class="player-progress-group">
+          <span id="currentTime" class="time-stamp">0:00</span>
+          <div id="progressContainer" class="progress-bar-container">
+            <div id="progressBuffer" class="progress-buffer"></div>
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+          <span id="totalDuration" class="time-stamp">0:00</span>
+        </div>
+      </div>
+
+      <!-- Right: Tools, Speed & Volume -->
+      <div class="player-right">
+        <!-- Speed selector -->
+        <select id="speedSelect" class="speed-select" title="Playback Speed">
+          <option value="0.75">0.75x</option>
+          <option value="1.0" selected>1.0x</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+          <option value="1.75">1.75x</option>
+          <option value="2.0">2.0x</option>
+        </select>
+
+        <!-- Sleep timer -->
+        <button id="btnSleep" class="ctrl-btn" title="Sleep Timer" style="font-size: 1rem; position: relative;">
+          ⏱
+          <span id="sleepStatus" style="position: absolute; top: -6px; right: -6px; font-size: 0.65rem; background: var(--accent-gold); color: #fff; border-radius: 6px; padding: 1px 3px;"></span>
+        </button>
+
+        <!-- Sleep Popover -->
+        <div id="sleepPopover" class="sleep-popover">
+          <button class="sleep-btn" data-min="0">Off</button>
+          <button class="sleep-btn" data-min="15">15 Minutes</button>
+          <button class="sleep-btn" data-min="30">30 Minutes</button>
+          <button class="sleep-btn" data-min="45">45 Minutes</button>
+          <button class="sleep-btn" data-min="60">60 Minutes</button>
+        </div>
+
+        <!-- Volume -->
+        <div class="volume-group">
+          <button id="volumeBtn" class="ctrl-btn" title="Mute/Unmute" style="font-size: 1rem;">🔊</button>
+          <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="100">
+        </div>
+
+        <!-- Direct Download -->
+        <a id="btnDownload" href="#" download class="ctrl-btn" title="Download Audio File" target="_blank" rel="noopener">
+          ⬇️
+        </a>
+
+        <!-- Open in Google Drive -->
+        <a id="btnDriveLink" href="#" class="ctrl-btn" title="Open in Google Drive" target="_blank" rel="noopener">
+          ↗
+        </a>
+
+        <!-- Share Track Link -->
+        <button id="btnShare" class="ctrl-btn" title="Share Track Link">
+          🔗
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-quote">
+        Dedicated to His Divine Grace A.C. Bhaktivedanta Swami Prabhupāda, Founder-Ācārya of the International Society for Krishna Consciousness.
+      </div>
+      <div class="footer-links">
+        <a href="https://drive.google.com/drive/folders/0B-PB2tbaaSPHa2Z6dXozNUZkUDA?resourcekey=0-mIKPf0B_gzyYT0QWruv8gQ" target="_blank" rel="noopener" class="footer-link">Google Drive Source</a>
+        <a href="https://github.com" target="_blank" rel="noopener" class="footer-link">GitHub Repository</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
