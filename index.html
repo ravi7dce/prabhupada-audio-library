@@ -204,84 +204,43 @@
 
   <!-- Persistent Bottom Audio Player -->
   <aside id="playerBar" class="player-bar" style="display: none;" aria-label="Audio player">
-    <div class="player-inner">
+    <div class="container player-inner">
       <!-- Left: Track info -->
       <div class="player-track-info">
         <div id="playerArtwork" class="player-artwork">🪷</div>
         <div class="player-text">
           <div id="playerTitle" class="player-title">Track Title</div>
           <div id="playerSubtitle" class="player-subtitle">Book Title</div>
+          <div id="playerTrackIndex" class="player-track-index">Track 1 of 20</div>
         </div>
       </div>
 
-      <!-- Center: Controls + Scrubber -->
+      <!-- Center: Navigation & Embedded Google Drive Player -->
       <div class="player-center">
-        <div class="player-controls">
-          <button id="btnShuffle" class="ctrl-btn" title="Shuffle">🔀</button>
-          <button id="btnPrev" class="ctrl-btn" title="Previous Track">⏮</button>
-          <button id="btnRewind" class="ctrl-btn" title="Rewind 15s" style="font-size: 0.85rem; font-weight: bold;">↺ 15s</button>
-          <button id="btnPlayPause" class="btn-play-pause" title="Play">▶</button>
-          <button id="btnForward" class="ctrl-btn" title="Forward 30s" style="font-size: 0.85rem; font-weight: bold;">30s ↻</button>
-          <button id="btnNext" class="ctrl-btn" title="Next Track">⏭</button>
-          <button id="btnRepeat" class="ctrl-btn" title="Repeat Mode">🔁</button>
+        <button id="btnPrev" class="player-nav-btn" title="Previous Track">
+          <span>⏮</span> Prev
+        </button>
+        <div class="iframe-player-wrapper">
+          <iframe id="drivePlayerFrame" src="" allow="autoplay" title="Srila Prabhupada Audio Player"></iframe>
         </div>
-
-        <div class="player-progress-group">
-          <span id="currentTime" class="time-stamp">0:00</span>
-          <div id="progressContainer" class="progress-bar-container">
-            <div id="progressBuffer" class="progress-buffer"></div>
-            <div id="progressFill" class="progress-fill"></div>
-          </div>
-          <span id="totalDuration" class="time-stamp">0:00</span>
-        </div>
+        <button id="btnNext" class="player-nav-btn" title="Next Track">
+          Next <span>⏭</span>
+        </button>
       </div>
 
-      <!-- Right: Tools, Speed & Volume -->
+      <!-- Right: Direct Download & Links -->
       <div class="player-right">
-        <!-- Speed selector -->
-        <select id="speedSelect" class="speed-select" title="Playback Speed">
-          <option value="0.75">0.75x</option>
-          <option value="1.0" selected>1.0x</option>
-          <option value="1.25">1.25x</option>
-          <option value="1.5">1.5x</option>
-          <option value="1.75">1.75x</option>
-          <option value="2.0">2.0x</option>
-        </select>
-
-        <!-- Sleep timer -->
-        <button id="btnSleep" class="ctrl-btn" title="Sleep Timer" style="font-size: 1rem; position: relative;">
-          ⏱
-          <span id="sleepStatus" style="position: absolute; top: -6px; right: -6px; font-size: 0.65rem; background: var(--accent-gold); color: #fff; border-radius: 6px; padding: 1px 3px;"></span>
-        </button>
-
-        <!-- Sleep Popover -->
-        <div id="sleepPopover" class="sleep-popover">
-          <button class="sleep-btn" data-min="0">Off</button>
-          <button class="sleep-btn" data-min="15">15 Minutes</button>
-          <button class="sleep-btn" data-min="30">30 Minutes</button>
-          <button class="sleep-btn" data-min="45">45 Minutes</button>
-          <button class="sleep-btn" data-min="60">60 Minutes</button>
-        </div>
-
-        <!-- Volume -->
-        <div class="volume-group">
-          <button id="volumeBtn" class="ctrl-btn" title="Mute/Unmute" style="font-size: 1rem;">🔊</button>
-          <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="100">
-        </div>
-
-        <!-- Direct Download -->
-        <a id="btnDownload" href="#" download class="ctrl-btn" title="Download Audio File" target="_blank" rel="noopener">
-          ⬇️
+        <a id="btnDownload" href="#" download class="btn-download-pill" title="Download MP3 directly" target="_blank" rel="noopener">
+          <span>⬇️</span> Download MP3
         </a>
-
-        <!-- Open in Google Drive -->
-        <a id="btnDriveLink" href="#" class="ctrl-btn" title="Open in Google Drive" target="_blank" rel="noopener">
+        <a id="btnDriveLink" href="#" class="btn-icon" title="Open in Google Drive" target="_blank" rel="noopener">
           ↗
         </a>
-
-        <!-- Share Track Link -->
-        <button id="btnShare" class="ctrl-btn" title="Share Track Link">
+        <button id="btnShare" class="btn-icon" title="Share Track Link">
           🔗
+        </button>
+        <button id="btnClosePlayer" class="btn-icon" title="Close Player">
+          ✕
         </button>
       </div>
     </div>

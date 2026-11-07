@@ -58,27 +58,14 @@
     playerArtwork: document.getElementById('playerArtwork'),
     playerTitle: document.getElementById('playerTitle'),
     playerSubtitle: document.getElementById('playerSubtitle'),
-    btnPlayPause: document.getElementById('btnPlayPause'),
+    playerTrackIndex: document.getElementById('playerTrackIndex'),
+    drivePlayerFrame: document.getElementById('drivePlayerFrame'),
     btnPrev: document.getElementById('btnPrev'),
     btnNext: document.getElementById('btnNext'),
-    btnRewind: document.getElementById('btnRewind'),
-    btnForward: document.getElementById('btnForward'),
-    btnRepeat: document.getElementById('btnRepeat'),
-    btnShuffle: document.getElementById('btnShuffle'),
-    currentTime: document.getElementById('currentTime'),
-    totalDuration: document.getElementById('totalDuration'),
-    progressContainer: document.getElementById('progressContainer'),
-    progressFill: document.getElementById('progressFill'),
-    progressBuffer: document.getElementById('progressBuffer'),
-    speedSelect: document.getElementById('speedSelect'),
-    volumeBtn: document.getElementById('volumeBtn'),
-    volumeSlider: document.getElementById('volumeSlider'),
     btnDownload: document.getElementById('btnDownload'),
     btnDriveLink: document.getElementById('btnDriveLink'),
-    btnSleep: document.getElementById('btnSleep'),
-    sleepPopover: document.getElementById('sleepPopover'),
-    sleepStatus: document.getElementById('sleepStatus'),
-    btnShare: document.getElementById('btnShare')
+    btnShare: document.getElementById('btnShare'),
+    btnClosePlayer: document.getElementById('btnClosePlayer')
   };
 
   // Load Saved Preferences
@@ -476,95 +463,46 @@
     if (!track) return;
     state.currentTrack = track;
 
-    // Direct Google Drive download stream
-    audio.src = track.streamUrl;
-    audio.playbackRate = state.playbackRate;
+    // Load Google Drive waveform preview player
+    if (el.drivePlayerFrame) {
+      el.drivePlayerFrame.src = `https://drive.google.com/file/d/${track.id}/preview`;
+    }
 
     updatePlayerUI();
-
-    audio.play().then(() => {
-      state.isPlaying = true;
-      updatePlayPauseButton();
-      updateMediaSession();
-      addToHistory(track);
-    }).catch(err => {
-      console.warn('Direct stream autoplay failed or blocked:', err);
-      // Fallback URL
-      audio.src = `https://drive.google.com/uc?export=download&id=${track.id}`;
-      audio.play().then(() => {
-        state.isPlaying = true;
-        updatePlayPauseButton();
-        updateMediaSession();
-      }).catch(e => {
-        console.error('Audio playback error:', e);
-      });
-    });
+    addToHistory(track);
 
     if (el.playerBar) {
       el.playerBar.style.display = 'flex';
     }
+
+    // Highlight current track in modal if open
+    highlightModalTrack();
   }
 
-  function togglePlayPause() {
-    if (!state.currentTrack) {
-      if (state.books.length > 0) {
-        playBook(state.books[0]);
-      }
-      return;
-    }
-
-    if (audio.paused) {
-      audio.play().then(() => {
-        state.isPlaying = true;
-        updatePlayPauseButton();
-      });
-    } else {
-      audio.pause();
-      state.isPlaying = false;
-      updatePlayPauseButton();
-    }
+  function highlightModalTrack() {
+    if (!el.modalBody || !state.currentTrack) return;
+    el.modalBody.querySelectorAll('.track-item').forEach(item => {
+      const id = item.getAttribute('data-track-id');
+      const isCurrent = id === state.currentTrack.id;
+      item.classList.toggle('playing', isCurrent);
+      const playIcon = item.querySelector('.track-play-btn');
+      if (playIcon) playIcon.textContent = isCurrent ? '🔊' : '▶';
+    });
   }
 
   function playNextTrack() {
     if (!state.currentPlaylist.length) return;
-
-    if (state.isShuffle) {
-      const nextIdx = Math.floor(Math.random() * state.currentPlaylist.length);
-      state.currentIndex = nextIdx;
-      loadAndPlayTrack(state.currentPlaylist[nextIdx]);
-      return;
-    }
-
     if (state.currentIndex < state.currentPlaylist.length - 1) {
       state.currentIndex++;
       loadAndPlayTrack(state.currentPlaylist[state.currentIndex]);
-    } else if (state.repeatMode === 'all') {
-      state.currentIndex = 0;
-      loadAndPlayTrack(state.currentPlaylist[0]);
     }
   }
 
   function playPrevTrack() {
     if (!state.currentPlaylist.length) return;
-    if (audio.currentTime > 5) {
-      audio.currentTime = 0;
-      return;
-    }
-
     if (state.currentIndex > 0) {
       state.currentIndex--;
       loadAndPlayTrack(state.currentPlaylist[state.currentIndex]);
-    } else {
-      audio.currentTime = 0;
-    }
-  }
-
-  function updatePlayPauseButton() {
-    if (!el.btnPlayPause) return;
-    el.btnPlayPause.innerHTML = state.isPlaying ? '❚❚' : '▶';
-    el.btnPlayPause.title = state.isPlaying ? 'Pause' : 'Play';
-    if (el.playerArtwork) {
-      el.playerArtwork.classList.toggle('is-playing', state.isPlaying);
     }
   }
 
@@ -576,36 +514,28 @@
     if (el.playerSubtitle) {
       el.playerSubtitle.textContent = t.bookName || 'Srila Prabhupada Audio Library';
     }
+    if (el.playerTrackIndex) {
+      const total = state.currentPlaylist.length;
+      const cur = state.currentIndex + 1;
+      el.playerTrackIndex.textContent = total > 0 ? `Track ${cur} of ${total}` : '';
+    }
     if (el.btnDownload) {
-      el.btnDownload.href = t.streamUrl;
+      el.btnDownload.href = `https://drive.usercontent.google.com/download?id=${t.id}&export=download`;
       el.btnDownload.download = t.title;
     }
     if (el.btnDriveLink) {
-      el.btnDriveLink.href = t.driveUrl;
+      el.btnDriveLink.href = t.driveUrl || `https://drive.google.com/file/d/${t.id}/view`;
     }
-  }
 
-  // Update Media Session (OS controls, bluetooth headsets, lockscreen)
-  function updateMediaSession() {
-    if (!('mediaSession' in navigator) || !state.currentTrack) return;
-    const t = state.currentTrack;
-
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: formatTrackTitle(t.title),
-      artist: 'His Divine Grace A.C. Bhaktivedanta Swami Prabhupada',
-      album: t.bookName || 'Prabhupada Audio Library',
-      artwork: [
-        { src: 'assets/icon-192.png', sizes: '192x192', type: 'image/png' },
-        { src: 'assets/icon-512.png', sizes: '512x512', type: 'image/png' }
-      ]
-    });
-
-    navigator.mediaSession.setActionHandler('play', () => togglePlayPause());
-    navigator.mediaSession.setActionHandler('pause', () => togglePlayPause());
-    navigator.mediaSession.setActionHandler('previoustrack', () => playPrevTrack());
-    navigator.mediaSession.setActionHandler('nexttrack', () => playNextTrack());
-    navigator.mediaSession.setActionHandler('seekbackward', () => { audio.currentTime = Math.max(0, audio.currentTime - 15); });
-    navigator.mediaSession.setActionHandler('seekforward', () => { audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 30); });
+    // Update Prev / Next button states
+    if (el.btnPrev) {
+      el.btnPrev.disabled = state.currentIndex <= 0;
+      el.btnPrev.style.opacity = state.currentIndex <= 0 ? '0.4' : '1';
+    }
+    if (el.btnNext) {
+      el.btnNext.disabled = state.currentIndex >= state.currentPlaylist.length - 1;
+      el.btnNext.style.opacity = state.currentIndex >= state.currentPlaylist.length - 1 ? '0.4' : '1';
+    }
   }
 
   function addToHistory(track) {
@@ -621,94 +551,6 @@
       localStorage.setItem('sp_history', JSON.stringify(state.history));
     } catch (e) {}
   }
-
-  // Sleep Timer
-  function setSleepTimer(minutes) {
-    if (state.sleepTimerId) {
-      clearTimeout(state.sleepTimerId);
-      state.sleepTimerId = null;
-    }
-
-    state.sleepTimerMinutes = minutes;
-    if (minutes === 0) {
-      state.sleepEndTime = null;
-      if (el.sleepStatus) el.sleepStatus.textContent = '';
-      if (el.btnSleep) el.btnSleep.classList.remove('active');
-      return;
-    }
-
-    state.sleepEndTime = Date.now() + minutes * 60 * 1000;
-    if (el.btnSleep) el.btnSleep.classList.add('active');
-
-    state.sleepTimerId = setTimeout(() => {
-      // Fade out volume then pause
-      let vol = audio.volume;
-      const fadeInterval = setInterval(() => {
-        if (vol > 0.1) {
-          vol -= 0.1;
-          audio.volume = vol;
-        } else {
-          clearInterval(fadeInterval);
-          audio.pause();
-          state.isPlaying = false;
-          audio.volume = state.volume;
-          updatePlayPauseButton();
-          setSleepTimer(0);
-        }
-      }, 200);
-    }, minutes * 60 * 1000);
-
-    updateSleepStatusUI();
-  }
-
-  function updateSleepStatusUI() {
-    if (!el.sleepStatus || !state.sleepEndTime) return;
-    const remainingMs = state.sleepEndTime - Date.now();
-    if (remainingMs <= 0) {
-      el.sleepStatus.textContent = '';
-      return;
-    }
-    const remM = Math.ceil(remainingMs / 60000);
-    el.sleepStatus.textContent = `${remM}m`;
-  }
-
-  // Audio Event Listeners
-  audio.addEventListener('timeupdate', () => {
-    if (!audio.duration) return;
-    const cur = audio.currentTime;
-    const dur = audio.duration;
-    if (el.currentTime) el.currentTime.textContent = formatTime(cur);
-    if (el.totalDuration) el.totalDuration.textContent = formatTime(dur);
-
-    const pct = (cur / dur) * 100;
-    if (el.progressFill) el.progressFill.style.width = `${pct}%`;
-
-    // Buffer progress
-    if (audio.buffered.length > 0) {
-      const bufferedEnd = audio.buffered.end(audio.buffered.length - 1);
-      const bufPct = (bufferedEnd / dur) * 100;
-      if (el.progressBuffer) el.progressBuffer.style.width = `${bufPct}%`;
-    }
-  });
-
-  audio.addEventListener('ended', () => {
-    if (state.repeatMode === 'one') {
-      audio.currentTime = 0;
-      audio.play();
-    } else {
-      playNextTrack();
-    }
-  });
-
-  audio.addEventListener('play', () => {
-    state.isPlaying = true;
-    updatePlayPauseButton();
-  });
-
-  audio.addEventListener('pause', () => {
-    state.isPlaying = false;
-    updatePlayPauseButton();
-  });
 
   // UI Event Bindings
   function bindEvents() {
@@ -777,110 +619,14 @@
     }
 
     // Transport buttons
-    if (el.btnPlayPause) el.btnPlayPause.addEventListener('click', togglePlayPause);
     if (el.btnPrev) el.btnPrev.addEventListener('click', playPrevTrack);
     if (el.btnNext) el.btnNext.addEventListener('click', playNextTrack);
-    if (el.btnRewind) el.btnRewind.addEventListener('click', () => { audio.currentTime = Math.max(0, audio.currentTime - 15); });
-    if (el.btnForward) el.btnForward.addEventListener('click', () => { audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 30); });
 
-    // Repeat Mode Toggle
-    if (el.btnRepeat) {
-      el.btnRepeat.addEventListener('click', () => {
-        if (state.repeatMode === 'off') {
-          state.repeatMode = 'all';
-          el.btnRepeat.classList.add('active');
-          el.btnRepeat.innerHTML = '🔁';
-          el.btnRepeat.title = 'Repeat: All Tracks';
-        } else if (state.repeatMode === 'all') {
-          state.repeatMode = 'one';
-          el.btnRepeat.classList.add('active');
-          el.btnRepeat.innerHTML = '🔂';
-          el.btnRepeat.title = 'Repeat: Current Track';
-        } else {
-          state.repeatMode = 'off';
-          el.btnRepeat.classList.remove('active');
-          el.btnRepeat.innerHTML = '🔁';
-          el.btnRepeat.title = 'Repeat: Off';
-        }
-      });
-    }
-
-    // Shuffle Toggle
-    if (el.btnShuffle) {
-      el.btnShuffle.addEventListener('click', () => {
-        state.isShuffle = !state.isShuffle;
-        el.btnShuffle.classList.toggle('active', state.isShuffle);
-      });
-    }
-
-    // Progress Bar Scrubber
-    if (el.progressContainer) {
-      el.progressContainer.addEventListener('click', (e) => {
-        if (!audio.duration) return;
-        const rect = el.progressContainer.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const width = rect.width;
-        const pct = Math.max(0, Math.min(1, clickX / width));
-        audio.currentTime = pct * audio.duration;
-      });
-    }
-
-    // Playback Speed
-    if (el.speedSelect) {
-      el.speedSelect.addEventListener('change', (e) => {
-        state.playbackRate = parseFloat(e.target.value);
-        audio.playbackRate = state.playbackRate;
-      });
-    }
-
-    // Volume
-    if (el.volumeSlider) {
-      el.volumeSlider.addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value) / 100;
-        state.volume = val;
-        audio.volume = val;
-        localStorage.setItem('sp_vol', val);
-        if (el.volumeBtn) el.volumeBtn.textContent = val === 0 ? '🔇' : val < 0.5 ? '🔉' : '🔊';
-      });
-    }
-
-    if (el.volumeBtn) {
-      el.volumeBtn.addEventListener('click', () => {
-        if (audio.volume > 0) {
-          state.isMuted = true;
-          audio.volume = 0;
-          el.volumeBtn.textContent = '🔇';
-          if (el.volumeSlider) el.volumeSlider.value = 0;
-        } else {
-          state.isMuted = false;
-          audio.volume = state.volume || 1.0;
-          el.volumeBtn.textContent = audio.volume < 0.5 ? '🔉' : '🔊';
-          if (el.volumeSlider) el.volumeSlider.value = (state.volume || 1.0) * 100;
-        }
-      });
-    }
-
-    // Sleep Timer Popover
-    if (el.btnSleep && el.sleepPopover) {
-      el.btnSleep.addEventListener('click', (e) => {
-        e.stopPropagation();
-        el.sleepPopover.classList.toggle('open');
-      });
-
-      document.addEventListener('click', (e) => {
-        if (!el.sleepPopover.contains(e.target) && e.target !== el.btnSleep) {
-          el.sleepPopover.classList.remove('open');
-        }
-      });
-
-      el.sleepPopover.querySelectorAll('.sleep-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const min = parseInt(btn.getAttribute('data-min'), 10);
-          setSleepTimer(min);
-          el.sleepPopover.querySelectorAll('.sleep-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          el.sleepPopover.classList.remove('open');
-        });
+    // Close Player
+    if (el.btnClosePlayer) {
+      el.btnClosePlayer.addEventListener('click', () => {
+        if (el.playerBar) el.playerBar.style.display = 'none';
+        if (el.drivePlayerFrame) el.drivePlayerFrame.src = '';
       });
     }
 
@@ -903,19 +649,16 @@
     document.addEventListener('keydown', (e) => {
       // Ignore if inside an input
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) {
-        if (e.key === 'Escape' && el.bookModal.classList.contains('open')) {
+        if (e.key === 'Escape' && el.bookModal && el.bookModal.classList.contains('open')) {
           closeModal();
         }
         return;
       }
 
-      if (e.key === ' ') {
-        e.preventDefault();
-        togglePlayPause();
-      } else if (e.key === 'ArrowLeft') {
-        audio.currentTime = Math.max(0, audio.currentTime - 15);
-      } else if (e.key === 'ArrowRight') {
-        audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 30);
+      if (e.key === 'ArrowLeft' || e.key === '[') {
+        playPrevTrack();
+      } else if (e.key === 'ArrowRight' || e.key === ']') {
+        playNextTrack();
       } else if (e.key === 'Escape') {
         closeModal();
       } else if (e.key === '/') {
